@@ -7,10 +7,10 @@ library(stringr)
 library(data.table)
 
 
-setwd("/Users/romainbui/Documents/Harvard Classes/Kaggle/Kaggle")
+setwd("C:\\Users\\Herve\\Documents\\Projets\\Kaggle---Kijiji-Russia")
+getwd()
 
-
-Search.Stream = fread("./train_Search_Stream.txt", skip = 0)
+Search.Stream = fread("train_Search_Stream.txt", skip = 0)
 setkey(Search.Stream, "SearchID")
 Search.Info   = fread("./search_info.txt", skip = 0)
 AD.Info       = fread("./ads_info.txt", skip = 0)
@@ -34,3 +34,7 @@ MostFrequent = function(X){
 
 AggUserInfo = copy(c)
 AggUserInfo[, LoactionID := MostFrequent(LocationID), by = UserID][,list(UserID, LocationID)]
+
+
+
+
