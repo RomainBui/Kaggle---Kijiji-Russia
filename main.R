@@ -7,8 +7,9 @@ library(stringr)
 library(data.table)
 
 
-setwd("C:\\Users\\Herve\\Documents\\Projets\\Kaggle---Kijiji-Russia")
-setwd("/Users/romainbui/Kaggle---Kijiji-Russia")
+#setwd("C:\\Users\\Herve\\Documents\\Projets\\Kaggle---Kijiji-Russia")
+#setwd("/Users/romainbui/Kaggle---Kijiji-Russia")
+setwd("C:/Users/rbui/Desktop/Kaggle/Kaggle---Kijiji-Russia-master")
 
 customRead = function(x)
 {
@@ -29,6 +30,44 @@ setkey(Visits.Stream, "UserID")
 
 # Creation of the big dataTable
 mainTable = merge(merge(merge(Search.Stream, Search.Info, by = "SearchID", all.x = T), User.Info, by = "UserID", all.x = T), AD.Info, by = "AdID", all.x = T)
+mainTable$SearchDate = as.POSIXct(mainTable$SearchDate) # To ensure proper filtering on date
+
+# Romain : 1 Popularité de la recherche en clef (categorie)
+popSearch = function(x, SearchDate_ref, CategoryID_ref) # x: the mainTable
+{
+  #x = mainTable
+  #x$SearchDate = as.POSIXct(x$SearchDate)
+  #SearchDate_temp = x[1,]$SearchDate
+  #CategoryID_temp = x[1,]$CategoryID.y
+  res =  dim(x[SearchDate < SearchDate_ref & CategoryID.y == CategoryID_ref])[1] / dim(x[SearchDate < SearchDate_ref])[1] 
+  return(res)
+}
+
+#test= mainTable[1:100]
+#test[, r_pop:=popSearch(test, SearchDate, CategoryID.x), by = c("AdID", "UserID")]
+mainTable[, r_pop:=popSearch(mainTable, SearchDate, CategoryID.x), by = c("AdID", "UserID")]
+
+
+# Romain: 2 Most Frequent location for this search (category ?)
+locSearch = function(x, SearchDate_ref, CategoryID_ref)
+{
+  #x = mainTable
+  #SearchDate_ref = x[1,]$SearchDate
+  #CategoryID_ref = x[1,]$CategoryID.y
+  res = x[SearchDate < SearchDate_ref & CategoryID.y == CategoryID_ref]
+  res = res$LocationID.x;
+  #res[1] = 2643
+  res = table(res)
+  res = as.numeric(attr(sort(res, decreasing = T)[1], "names"))
+  return(res)
+}
+#test = mainTable[1:100]
+#test[, r_loc := locSearch(test, SearchDate, CategoryID.x), by= c("AdID", "UserID")]
+mainTable[, r_loc := locSearch(mainTable, SearchDate, CategoryID.x), by= c("AdID", "UserID")]
+
+
+
+
 
 
 # For a given user ID 
